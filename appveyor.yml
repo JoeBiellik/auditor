@@ -1,0 +1,36 @@
+version: '{build}'
+
+image:
+- Visual Studio 2019
+- Ubuntu
+
+matrix:
+  fast_finish: true
+
+install:
+- ps: Update-AppveyorBuild -Version "$(([Xml](Get-Content .\Auditor\Auditor.csproj)).Project.PropertyGroup.Version).$env:APPVEYOR_BUILD_NUMBER"
+
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  file_version: '{version}'
+
+build_script:
+- cmd: dotnet publish -c Release -r win-x64 /p:PublishProfile=win-x64
+- sh: dotnet publish -c Release -r linux-x64 /p:PublishProfile=linux-x64
+
+after_build:
+- cmd: 7z a Auditor-win-x64.zip .\Auditor\bin\x64\Release\win-x64\publish\* -x!*.pdb
+- sh: tar czf Auditor-linux-x64.tar.gz --owner=0 --group=0 --transform='s,^publish,auditor,' --exclude='*.pdb' -C Auditor/bin/x64/Release/linux-x64 publish
+
+artifacts:
+- path: 'Auditor-*.*'
+
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: aLQ6D565I4D5WHczmtvTYdTd2ZckzYapVNvox9kLoeqG7iYjAIVF1uX8Kdqw0fWj
+  artifact: 'Auditor-*.*'
+  force_update: true
+  on:
+    appveyor_repo_tag: true

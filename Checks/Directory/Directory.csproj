@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<Version>1.0.0</Version>
+		<Copyright>Joe Biellik 2017-2020</Copyright>
+		<AssemblyName>Auditor.Checks.Directory</AssemblyName>
+		<RootNamespace>Auditor.Checks.Directory</RootNamespace>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<Platforms>x64</Platforms>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\SDK\SDK.csproj" />
+	</ItemGroup>
+	<PropertyGroup Label="BasePath">
+		<SolutionDir Condition="'$(SolutionDir)'==''">$(MSBuildThisFileDirectory)</SolutionDir>
+	</PropertyGroup>
+	<Target Name="CopyCheck" AfterTargets="AfterBuild">
+		<Copy SourceFiles="$(OutputPath)$(AssemblyName).dll" DestinationFolder="$(SolutionDir)\Auditor\bin\$(Platform)\$(Configuration)\Checks" />
+	</Target>
+	<Target Name="PublishCheck" AfterTargets="Publish">
+		<Copy SourceFiles="$(PublishDir)$(AssemblyName).dll" DestinationFolder="$(SolutionDir)\Auditor\bin\$(Platform)\$(Configuration)\$(RuntimeIdentifier)\publish\Checks" />
+	</Target>
+</Project>
